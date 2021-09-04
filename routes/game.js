@@ -98,12 +98,28 @@ router.post('/vote', authenticate, async (req, res) => {
     }
 });
 
+router.post('/toggle', authenticate, async (req, res) => {
+    try {
+        const { _id } = req.body;
+        const game = await Game.findById(_id);
+        game.is_active = !(game.is_active);
+        await game.save();
+        res.status(201).json({
+            message: (game.is_active ? "Game activated" : "Game deactivated")
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
 router.get('/', authenticate, async (req, res) => {
     try {
         const user = req.user;
         const games = await Game.find({
             started_by: user._id
-        }).sort();
+        }).select('title is_active createdAt').sort();
 
         res.status(201).json({
             games

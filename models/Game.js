@@ -30,6 +30,9 @@ const gameSchema = new mongoose.Schema({
     _id: {
         type: String
     },
+    title: {
+        type: String
+    },
     started_by: {
         type: String
     },

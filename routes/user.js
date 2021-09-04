@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const authenticate = require('../middleware/authentication');
 const router = express.Router();
 
 
@@ -84,10 +85,39 @@ router.post('/login', async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error);
         res.status(400).json({
             error: error.message
         });
+    }
+});
+
+router.get('/', authenticate, async (req, res) => {
+    try {
+        res.status(200).json({
+            user: {
+                _id: req.user._id,
+                name: req.user.name,
+                email: req.user.email
+            }
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
+});
+
+router.get('/name/:id', authenticate, async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const user = await User.findById(_id).select('name -_id');
+        res.status(200).json({
+            name: user.name
+        });
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        }); 
     }
 });
 
