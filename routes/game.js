@@ -87,6 +87,9 @@ router.post('/vote', authenticate, async (req, res) => {
                 points
             })
             await game.save();
+            await pusher.trigger('game', 'vote', {
+                success: true
+              });
             res.status(201).json({
                 message: "Vote updated successfully"
             });
