@@ -6,7 +6,7 @@ const user = require('./routes/user');
 const game = require('./routes/game');
 
 const app = express();
-const PORT = process.env.APP_PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 connection();
 
