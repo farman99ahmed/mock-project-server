@@ -21,6 +21,9 @@ const questionSchema = new mongoose.Schema({
     question: {
         type: String
     },
+    is_active: {
+        type: Boolean
+    },
     votes: [voteSchema]
 }, {
     timestamps: true
