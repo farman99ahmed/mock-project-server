@@ -48,21 +48,22 @@ router.post('/new', authenticate, async (req, res) => {
 
 router.post('/question', authenticate, async (req, res) => {
     try {
-        const { gameId, question } = req.body;
+        const {
+            gameId,
+            question
+        } = req.body;
         const game = await Game.findOne({
             _id: gameId
         });
-        game.questions.push(
-            {
-                _id: uuid.v4(),
-                question,
-                is_active: true
-            }
-        )
+        game.questions.push({
+            _id: uuid.v4(),
+            question,
+            is_active: true
+        })
         await game.save();
         await pusher.trigger('game', 'vote', {
             success: true
-          });
+        });
         res.status(201).json({
             message: "Question updated successfully"
         });
@@ -76,9 +77,14 @@ router.post('/question', authenticate, async (req, res) => {
 
 router.post('/vote', async (req, res) => {
     try {
-        const { gameId, questionId, voter, points } = req.body;
+        const {
+            gameId,
+            questionId,
+            voter,
+            points
+        } = req.body;
 
-        if (!(gameId && questionId && voter && points )) {
+        if (!(gameId && questionId && voter && points)) {
             res.status(400).json({
                 error: "All inputs are required."
             });
@@ -95,7 +101,7 @@ router.post('/vote', async (req, res) => {
             await game.save();
             await pusher.trigger('game', 'vote', {
                 success: true
-              });
+            });
             res.status(201).json({
                 message: "Vote updated successfully"
             });
@@ -107,15 +113,46 @@ router.post('/vote', async (req, res) => {
     }
 });
 
+router.post('/question/active', authenticate, async (req, res) => {
+    try {
+        const {
+            gameId,
+            questionId
+        } = req.body;
+
+        if (!(gameId && questionId)) {
+            res.status(400).json({
+                error: "All inputs are required."
+            });
+        } else {
+            const game = await Game.findById(gameId);
+            game.active_question = questionId;
+            await game.save();
+            await pusher.trigger('game', 'vote', {
+                success: true
+            });
+            res.status(201).json({
+                message: "Success"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
 router.post('/toggle', authenticate, async (req, res) => {
     try {
-        const { gameId } = req.body;
+        const {
+            gameId
+        } = req.body;
         const game = await Game.findById(gameId);
         game.is_active = !(game.is_active);
         await game.save();
         await pusher.trigger('game', 'vote', {
             success: true
-          });
+        });
         res.status(201).json({
             message: (game.is_active ? "Game activated" : "Game deactivated")
         });
@@ -128,7 +165,10 @@ router.post('/toggle', authenticate, async (req, res) => {
 
 router.post('/question/toggle', authenticate, async (req, res) => {
     try {
-        const { gameId, questionId } = req.body;
+        const {
+            gameId,
+            questionId
+        } = req.body;
         const game = await Game.findOne({
             _id: gameId
         });
@@ -137,7 +177,7 @@ router.post('/question/toggle', authenticate, async (req, res) => {
         await game.save();
         await pusher.trigger('game', 'vote', {
             success: true
-          });
+        });
         res.status(201).json({
             message: (game.is_active ? "Question activated" : "Question deactivated")
         });
