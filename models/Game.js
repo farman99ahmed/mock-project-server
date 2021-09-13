@@ -39,6 +39,9 @@ const gameSchema = new mongoose.Schema({
     started_by: {
         type: String
     },
+    active_question: {
+        type: String
+    },
     is_active: {
         type: Boolean
     },
