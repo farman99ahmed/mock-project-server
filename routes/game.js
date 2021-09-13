@@ -87,11 +87,20 @@ router.post('/vote', async (req, res) => {
                 _id: gameId
             });
             const question = await game.questions.id(questionId);
-            question.votes.push({
-                _id: uuid.v4(),
-                voter,
-                points
-            })
+
+            const hasUserAlreadyVoted = question.votes.some(obj => obj.voter === voter);
+
+            if(hasUserAlreadyVoted) {
+                const userVoteObjIndex = question.votes.findIndex((obj => obj.voter === voter));
+                question.votes[userVoteObjIndex].points = points;
+            } else {
+                question.votes.push({
+                    _id: uuid.v4(),
+                    voter,
+                    points
+                });
+            }
+
             await game.save();
             await pusher.trigger('game', 'vote', {
                 success: true
